@@ -9,7 +9,10 @@
 #import "GKImagePicker.h"
 
 #import "GKImageCropViewController.h"
-#import "GKImagePickerAuthorizer.h"
+//#import "GKImagePickerAuthorizer.h"
+
+@import Photos;
+#import <AssetsLibrary/AssetsLibrary.h>
 
 NSUInteger const kGKNoPermissionsAlertViewTag = 2500;
 
@@ -255,20 +258,55 @@ NSString const *kGKPhotoLibraryErrorMessage = @"You Didn't authorized access to 
     });
 }
 
+
+- (BOOL)hasPermissionToPhotoLibrary
+{
+    switch ([PHPhotoLibrary authorizationStatus])
+    {
+        case PHAuthorizationStatusAuthorized://We have permission
+        {
+            return YES;
+        }
+        default://We dont have permissions, or we need to ask for them
+        {
+            return NO;
+        }
+    }
+}
+
+- (BOOL)hasPermissionToCamera
+{
+    
+    AVAuthorizationStatus status = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
+    
+    switch (status) {
+        case AVAuthorizationStatusAuthorized:
+        {
+            return YES;
+        }
+        default:
+        {
+            return NO;
+        }
+    }
+    
+}
+
+
 #pragma mark - UIActionSheetDelegate
 
 - (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
     
     switch (buttonIndex) {
         case 0:
-            if ([GKImagePickerAuthorizer hasPermissionToCamera]) {
+            if ([self hasPermissionToCamera]) {
                 [self showCameraImagePicker];
             } else {
                 [self triggerNoPermissionFlow:buttonIndex];
             }
             break;
         case 1:
-            if ([GKImagePickerAuthorizer hasPermissionToCamera]) {
+            if ([self hasPermissionToCamera]) {
                 [self showGalleryImagePicker];
             } else {
                 [self triggerNoPermissionFlow:buttonIndex];

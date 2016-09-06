@@ -210,6 +210,11 @@
 			attributes = {
 				LastUpgradeCheck = 0500;
 				ORGANIZATIONNAME = "Georg Kitz";
+				TargetAttributes = {
+					C1C7B65D1598429E007B2669 = {
+						DevelopmentTeam = 2PGUSK97GU;
+					};
+				};
 			};
 			buildConfigurationList = C1C7B6581598429E007B2669 /* Build configuration list for PBXProject "GKImagePicker" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -350,10 +355,11 @@
 		C1C7B6801598429E007B2669 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "GKImagePicker/GKImagePicker-Prefix.pch";
 				INFOPLIST_FILE = "GKImagePicker/GKImagePicker-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(FRANK_LIBRARY_SEARCH_PATHS)",
@@ -370,10 +376,11 @@
 		C1C7B6811598429E007B2669 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "GKImagePicker/GKImagePicker-Prefix.pch";
 				INFOPLIST_FILE = "GKImagePicker/GKImagePicker-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
