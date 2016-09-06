@@ -56,10 +56,8 @@
     
     if ([self.delegate respondsToSelector:@selector(imagePickerDidCancel:)]) {
         [self.delegate imagePickerDidCancel:self];
-    } else {
         [self _hideController];
     }
-    
 }
 
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info{
@@ -211,9 +209,11 @@
 - (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
     switch (buttonIndex) {
         case 0:
+            //TODO - check fo rauthority if not show path to settings
             [self showCameraImagePicker];
             break;
         case 1:
+            //TODO - check fo rauthority if not show path to settings
             [self showGalleryImagePicker];
             break;
     }
