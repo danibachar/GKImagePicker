@@ -9,6 +9,16 @@
 #import "GKImagePicker.h"
 
 #import "GKImageCropViewController.h"
+#import "GKImagePickerAuthorizer.h"
+
+NSUInteger const kGKNoPermissionsAlertViewTag = 2500;
+
+//No Permission messages
+NSString const *kGKCameraErrorTitle = @"Camera Access Denied";
+NSString const *kGKCameraErrorMessage = @"You Didn't authorized access to the Camera, so we can't change the profile picture from live camera";
+
+NSString const *kGKPhotoLibraryErrorTitle = @"Library Access Denied";
+NSString const *kGKPhotoLibraryErrorMessage = @"You Didn't authorized access to the Photo Library, so we can't change the profile picture from photos library";
 
 @interface GKImagePicker ()<UIImagePickerControllerDelegate, UINavigationControllerDelegate, GKImageCropControllerDelegate, UIActionSheetDelegate>
 @property (nonatomic, weak) UIViewController *presentingViewController;
@@ -56,6 +66,8 @@
     
     if ([self.delegate respondsToSelector:@selector(imagePickerDidCancel:)]) {
         [self.delegate imagePickerDidCancel:self];
+        [self _hideController];
+    } else {
         [self _hideController];
     }
 }
@@ -203,19 +215,72 @@
     [self presentImagePickerController];
 }
 
-#pragma mark -
+#pragma mark - Private Error Handling
+- (void)triggerNoPermissionFlow:(NSUInteger)type
+{
+    switch (type) {
+        case 0://Camera
+            [self showNoPermissionAlert:[kGKCameraErrorTitle mutableCopy]
+                                message:[kGKCameraErrorMessage mutableCopy]];
+            break;
+        case 1://Photo Library
+            [self showNoPermissionAlert:[kGKPhotoLibraryErrorTitle mutableCopy]
+                                message:[kGKPhotoLibraryErrorMessage mutableCopy]];
+            break;
+        default:
+            break;
+    }
+}
+
+- (void)showNoPermissionAlert:(NSString*)title
+                           message:(NSString*)message
+{
+    if (title.length == 0) {
+        title = @"No Permission";
+    }
+    if (message.length == 0) {
+        message = @"There are no permissions...Please visit app settings";
+    }
+    
+    UIAlertView *notAuthorizedAlert = [[UIAlertView alloc] initWithTitle:title
+                                                                 message:message
+                                                                delegate:self
+                                                       cancelButtonTitle:@"Dismiss"
+                                                       otherButtonTitles:nil, nil];
+    
+    notAuthorizedAlert.tag = kGKNoPermissionsAlertViewTag;
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [notAuthorizedAlert show];
+    });
+}
+
 #pragma mark - UIActionSheetDelegate
 
 - (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
+    
     switch (buttonIndex) {
         case 0:
-            //TODO - check fo rauthority if not show path to settings
-            [self showCameraImagePicker];
+            if ([GKImagePickerAuthorizer hasPermissionToCamera]) {
+                [self showCameraImagePicker];
+            } else {
+                [self triggerNoPermissionFlow:buttonIndex];
+            }
             break;
         case 1:
-            //TODO - check fo rauthority if not show path to settings
-            [self showGalleryImagePicker];
+            if ([GKImagePickerAuthorizer hasPermissionToCamera]) {
+                [self showGalleryImagePicker];
+            } else {
+                [self triggerNoPermissionFlow:buttonIndex];
+            }
             break;
+    }
+}
+
+- (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex
+{
+    if (alertView.tag == kGKNoPermissionsAlertViewTag) {
+        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
     }
 }
 
