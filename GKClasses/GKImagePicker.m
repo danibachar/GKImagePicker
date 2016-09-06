@@ -22,6 +22,19 @@ NSString const *kGKCameraErrorMessage = @"You Didn't authorized access to the Ca
 NSString const *kGKPhotoLibraryErrorTitle = @"Library Access Denied";
 NSString const *kGKPhotoLibraryErrorMessage = @"You Didn't authorized access to the Photo Library, so we can't change the profile picture from photos library";
 
+typedef NS_ENUM(NSUInteger, GKPickerOption)
+{
+    GKPickerOptionCamera = 0,
+    GKPickerOptionPhotoLibrary,
+    GKPickerOptionNone
+};
+
+typedef NS_ENUM(NSUInteger, GKPickerAppSettingsOptions)
+{
+    GKPickerAppSettingsOptionsNone = 0,
+    GKPickerAppSettingsOptionsOpen
+};
+
 @interface GKImagePicker ()<UIImagePickerControllerDelegate, UINavigationControllerDelegate, GKImageCropControllerDelegate, UIActionSheetDelegate>
 @property (nonatomic, weak) UIViewController *presentingViewController;
 @property (nonatomic, weak) UIView *popoverView;
@@ -58,7 +71,7 @@ NSString const *kGKPhotoLibraryErrorMessage = @"You Didn't authorized access to 
     } else {
         [self.imagePickerController dismissViewControllerAnimated:YES completion:nil];
     }
-
+    
 }
 
 #pragma mark -
@@ -75,7 +88,7 @@ NSString const *kGKPhotoLibraryErrorMessage = @"You Didn't authorized access to 
 }
 
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info{
-
+    
     GKImageCropViewController *cropController = [[GKImageCropViewController alloc] init];
     cropController.enforceRatioLimits = self.enforceRatioLimits;
     cropController.maxWidthRatio = self.maxWidthRatio;
@@ -119,25 +132,23 @@ NSString const *kGKPhotoLibraryErrorMessage = @"You Didn't authorized access to 
     
     if (NSFoundationVersionNumber >= NSFoundationVersionNumber_iOS_8_0) {
         UIAlertController *alertController = [UIAlertController alertControllerWithTitle:nil message:nil preferredStyle:UIAlertControllerStyleActionSheet];
-        UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:cancelTitle style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+        UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:cancelTitle style:UIAlertActionStyleCancel handler:nil];
+        
+        __weak typeof (self) weakSelf = self;
+        UIAlertAction *fromCameraAction = [UIAlertAction actionWithTitle:fromCameraString style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+            [weakSelf showCameraImagePicker];
             
         }];
         
-        UIAlertAction *fromCameraAction = [UIAlertAction actionWithTitle:fromCameraString style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-            [self showCameraImagePicker];
-        }];
-        
         UIAlertAction *fromLibraryAction = [UIAlertAction actionWithTitle:fromLibraryString style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-            [self showGalleryImagePicker];
+            [weakSelf showGalleryImagePicker];
         }];
         
         [alertController addAction:cancelAction];
         [alertController addAction:fromCameraAction];
         [alertController addAction:fromLibraryAction];
         
-        [viewController presentViewController:alertController animated:YES completion:^{
-            
-        }];
+        [viewController presentViewController:alertController animated:YES completion:nil];
     }
     else {
         UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:nil
@@ -182,25 +193,30 @@ NSString const *kGKPhotoLibraryErrorMessage = @"You Didn't authorized access to 
 }
 
 - (void)showCameraImagePicker {
-
+    
 #if TARGET_IPHONE_SIMULATOR
-
+    
     UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"Simulator" message:@"Camera not available." delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
     [alert show];
     
 #elif TARGET_OS_IPHONE
     
-    self.imagePickerController = [[UIImagePickerController alloc] init];
-    self.imagePickerController.sourceType = UIImagePickerControllerSourceTypeCamera;
-    self.imagePickerController.delegate = self;
-    self.imagePickerController.allowsEditing = NO;
-    
-    if (self.useFrontCameraAsDefault){
-        self.imagePickerController.cameraDevice = UIImagePickerControllerCameraDeviceFront;
+    if ([self hasPermissionToCamera]) {
+        self.imagePickerController = [[UIImagePickerController alloc] init];
+        self.imagePickerController.sourceType = UIImagePickerControllerSourceTypeCamera;
+        self.imagePickerController.delegate = self;
+        self.imagePickerController.allowsEditing = NO;
+        
+        if (self.useFrontCameraAsDefault){
+            self.imagePickerController.cameraDevice = UIImagePickerControllerCameraDeviceFront;
+        }
+        [self presentImagePickerController];
+    } else {
+        [self triggerNoPermissionFlow:GKPickerOptionCamera];
     }
-    [self presentImagePickerController];
+    
 #endif
-
+    
 }
 
 - (void)showGalleryImagePickerOnViewController:(UIViewController *)viewController {
@@ -209,12 +225,18 @@ NSString const *kGKPhotoLibraryErrorMessage = @"You Didn't authorized access to 
 }
 
 - (void)showGalleryImagePicker {
-    self.imagePickerController = [[UIImagePickerController alloc] init];
-    self.imagePickerController.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
-    self.imagePickerController.delegate = self;
-    self.imagePickerController.allowsEditing = NO;
-
-    [self presentImagePickerController];
+    
+    if ([self hasPermissionToPhotoLibrary]) {
+        
+        self.imagePickerController = [[UIImagePickerController alloc] init];
+        self.imagePickerController.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+        self.imagePickerController.delegate = self;
+        self.imagePickerController.allowsEditing = NO;
+        
+        [self presentImagePickerController];
+    } else {
+        [self triggerNoPermissionFlow:GKPickerOptionPhotoLibrary];
+    }
 }
 
 #pragma mark - Private Error Handling
@@ -235,7 +257,7 @@ NSString const *kGKPhotoLibraryErrorMessage = @"You Didn't authorized access to 
 }
 
 - (void)showNoPermissionAlert:(NSString*)title
-                           message:(NSString*)message
+                      message:(NSString*)message
 {
     if (title.length == 0) {
         title = @"No Permission";
@@ -248,7 +270,7 @@ NSString const *kGKPhotoLibraryErrorMessage = @"You Didn't authorized access to 
                                                                  message:message
                                                                 delegate:self
                                                        cancelButtonTitle:@"Dismiss"
-                                                       otherButtonTitles:nil, nil];
+                                                       otherButtonTitles:@"Settings", nil];
     
     notAuthorizedAlert.tag = kGKNoPermissionsAlertViewTag;
     
@@ -297,19 +319,11 @@ NSString const *kGKPhotoLibraryErrorMessage = @"You Didn't authorized access to 
 - (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
     
     switch (buttonIndex) {
-        case 0:
-            if ([self hasPermissionToCamera]) {
-                [self showCameraImagePicker];
-            } else {
-                [self triggerNoPermissionFlow:buttonIndex];
-            }
+        case GKPickerOptionCamera:
+            [self showCameraImagePicker];
             break;
-        case 1:
-            if ([self hasPermissionToCamera]) {
-                [self showGalleryImagePicker];
-            } else {
-                [self triggerNoPermissionFlow:buttonIndex];
-            }
+        case GKPickerOptionPhotoLibrary:
+            [self showGalleryImagePicker];
             break;
     }
 }
@@ -317,7 +331,9 @@ NSString const *kGKPhotoLibraryErrorMessage = @"You Didn't authorized access to 
 - (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex
 {
     if (alertView.tag == kGKNoPermissionsAlertViewTag) {
-        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
+        if (buttonIndex == GKPickerAppSettingsOptionsOpen) {
+            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
+        }
     }
 }
 
