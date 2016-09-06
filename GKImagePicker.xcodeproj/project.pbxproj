@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		4F1673B81D7EF73300C9A0AE /* GKImagePickerAuthorizer.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F1673B71D7EF73300C9A0AE /* GKImagePickerAuthorizer.m */; };
 		C147FBF61677C12F0035B373 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = C147FBF51677C12F0035B373 /* Default-568h@2x.png */; };
 		C1C7B6631598429E007B2669 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C1C7B6621598429E007B2669 /* UIKit.framework */; };
 		C1C7B6651598429E007B2669 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C1C7B6641598429E007B2669 /* Foundation.framework */; };
@@ -36,8 +35,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		4F1673B61D7EF73300C9A0AE /* GKImagePickerAuthorizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GKImagePickerAuthorizer.h; sourceTree = "<group>"; };
-		4F1673B71D7EF73300C9A0AE /* GKImagePickerAuthorizer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GKImagePickerAuthorizer.m; sourceTree = "<group>"; };
 		C147FBF51677C12F0035B373 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		C1C7B65E1598429E007B2669 /* GKImagePicker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GKImagePicker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C1C7B6621598429E007B2669 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
@@ -161,8 +158,6 @@
 				D696F4F916111C28007802E6 /* GKCropBorderView.m */,
 				D6862A9016111C68005A5C5C /* GKResizeableCropOverlayView.h */,
 				D6862A9116111C68005A5C5C /* GKResizeableCropOverlayView.m */,
-				4F1673B61D7EF73300C9A0AE /* GKImagePickerAuthorizer.h */,
-				4F1673B71D7EF73300C9A0AE /* GKImagePickerAuthorizer.m */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -265,7 +260,6 @@
 				C1C7B6E615984465007B2669 /* GKImageCropViewController.m in Sources */,
 				C1C7B6E715984465007B2669 /* GKImageCropView.m in Sources */,
 				C1C7B6E815984465007B2669 /* GKImageCropOverlayView.m in Sources */,
-				4F1673B81D7EF73300C9A0AE /* GKImagePickerAuthorizer.m in Sources */,
 				C1C7B6E41598445C007B2669 /* ViewController.m in Sources */,
 				C1C7B66F1598429E007B2669 /* main.m in Sources */,
 				C1C7B6731598429E007B2669 /* AppDelegate.m in Sources */,

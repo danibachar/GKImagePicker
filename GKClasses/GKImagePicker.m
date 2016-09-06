@@ -9,7 +9,6 @@
 #import "GKImagePicker.h"
 
 #import "GKImageCropViewController.h"
-//#import "GKImagePickerAuthorizer.h"
 
 @import Photos;
 #import <AssetsLibrary/AssetsLibrary.h>
