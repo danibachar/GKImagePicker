@@ -53,7 +53,8 @@ typedef NS_ENUM(NSUInteger, GKPickerAppSettingsOptions)
 #pragma mark -
 #pragma mark Init Methods
 
-- (id)init{
+- (id)init
+{
     if (self = [super init]) {
         
         self.cropSize = CGSizeMake(320, 320);
@@ -65,7 +66,8 @@ typedef NS_ENUM(NSUInteger, GKPickerAppSettingsOptions)
 # pragma mark -
 # pragma mark Private Methods
 
-- (void)_hideController{
+- (void)_hideController
+{
     if (UIUserInterfaceIdiomPad == UI_USER_INTERFACE_IDIOM()) {
         [self.popoverController dismissPopoverAnimated:YES];
     } else {
@@ -74,11 +76,26 @@ typedef NS_ENUM(NSUInteger, GKPickerAppSettingsOptions)
     
 }
 
-#pragma mark -
+#pragma mark - UIImagePickerController Init
+- (void)initImagePickerIfNeededByType:(UIImagePickerControllerSourceType)type
+{
+    if (!self.imagePickerController) {
+        self.imagePickerController = [[UIImagePickerController alloc] init];
+        self.imagePickerController.delegate = self;
+        self.imagePickerController.allowsEditing = YES;
+    }
+    
+    if (self.useFrontCameraAsDefault) {
+        self.imagePickerController.cameraDevice = UIImagePickerControllerCameraDeviceFront;
+    }
+    
+    self.imagePickerController.sourceType = type;
+}
+
 #pragma mark UIImagePickerDelegate Methods
 
-- (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker{
-    
+- (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
+{
     if ([self.delegate respondsToSelector:@selector(imagePickerDidCancel:)]) {
         [self.delegate imagePickerDidCancel:self];
         [self _hideController];
@@ -87,8 +104,8 @@ typedef NS_ENUM(NSUInteger, GKPickerAppSettingsOptions)
     }
 }
 
-- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info{
-    
+- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
+{
     GKImageCropViewController *cropController = [[GKImageCropViewController alloc] init];
     cropController.enforceRatioLimits = self.enforceRatioLimits;
     cropController.maxWidthRatio = self.maxWidthRatio;
@@ -99,7 +116,8 @@ typedef NS_ENUM(NSUInteger, GKPickerAppSettingsOptions)
 #else
     cropController.contentSizeForViewInPopover = picker.contentSizeForViewInPopover;
 #endif
-    cropController.sourceImage = [info objectForKey:UIImagePickerControllerOriginalImage];
+    UIImage *img = [info objectForKey:UIImagePickerControllerEditedImage];
+    cropController.sourceImage = img;
     cropController.resizeableCropArea = self.resizeableCropArea;
     cropController.cropSize = self.cropSize;
     cropController.delegate = self;
@@ -110,8 +128,8 @@ typedef NS_ENUM(NSUInteger, GKPickerAppSettingsOptions)
 #pragma mark -
 #pragma GKImagePickerDelegate
 
-- (void)imageCropController:(GKImageCropViewController *)imageCropController didFinishWithCroppedImage:(UIImage *)croppedImage{
-    
+- (void)imageCropController:(GKImageCropViewController *)imageCropController didFinishWithCroppedImage:(UIImage *)croppedImage
+{
     if ([self.delegate respondsToSelector:@selector(imagePicker:pickedImage:)]) {
         [self _hideController];
         [self.delegate imagePicker:self pickedImage:croppedImage];
@@ -192,8 +210,8 @@ typedef NS_ENUM(NSUInteger, GKPickerAppSettingsOptions)
     [self showCameraImagePicker];
 }
 
-- (void)showCameraImagePicker {
-    
+- (void)showCameraImagePicker
+{
 #if TARGET_IPHONE_SIMULATOR
     
     UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"Simulator" message:@"Camera not available." delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
@@ -202,14 +220,8 @@ typedef NS_ENUM(NSUInteger, GKPickerAppSettingsOptions)
 #elif TARGET_OS_IPHONE
     
     if ([self hasPermissionToCamera]) {
-        self.imagePickerController = [[UIImagePickerController alloc] init];
-        self.imagePickerController.sourceType = UIImagePickerControllerSourceTypeCamera;
-        self.imagePickerController.delegate = self;
-        self.imagePickerController.allowsEditing = NO;
         
-        if (self.useFrontCameraAsDefault){
-            self.imagePickerController.cameraDevice = UIImagePickerControllerCameraDeviceFront;
-        }
+        [self initImagePickerIfNeededByType:UIImagePickerControllerSourceTypeCamera];
         [self presentImagePickerController];
     } else {
         [self triggerNoPermissionFlow:GKPickerOptionCamera];
@@ -219,20 +231,17 @@ typedef NS_ENUM(NSUInteger, GKPickerAppSettingsOptions)
     
 }
 
-- (void)showGalleryImagePickerOnViewController:(UIViewController *)viewController {
+- (void)showGalleryImagePickerOnViewController:(UIViewController *)viewController
+{
     self.presentingViewController = viewController;
     [self showGalleryImagePicker];
 }
 
-- (void)showGalleryImagePicker {
-    
+- (void)showGalleryImagePicker
+{    
     if ([self hasPermissionToPhotoLibrary]) {
         
-        self.imagePickerController = [[UIImagePickerController alloc] init];
-        self.imagePickerController.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
-        self.imagePickerController.delegate = self;
-        self.imagePickerController.allowsEditing = NO;
-        
+        [self initImagePickerIfNeededByType:UIImagePickerControllerSourceTypePhotoLibrary];
         [self presentImagePickerController];
     } else {
         [self triggerNoPermissionFlow:GKPickerOptionPhotoLibrary];
@@ -285,32 +294,22 @@ typedef NS_ENUM(NSUInteger, GKPickerAppSettingsOptions)
     switch ([PHPhotoLibrary authorizationStatus])
     {
         case PHAuthorizationStatusAuthorized://We have permission
-        {
             return YES;
-        }
         default://We dont have permissions, or we need to ask for them
-        {
             return NO;
-        }
     }
 }
 
 - (BOOL)hasPermissionToCamera
 {
-    
     AVAuthorizationStatus status = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
     
     switch (status) {
         case AVAuthorizationStatusAuthorized:
-        {
             return YES;
-        }
         default:
-        {
             return NO;
-        }
     }
-    
 }
 
 

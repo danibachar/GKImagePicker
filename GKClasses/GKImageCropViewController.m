@@ -39,9 +39,10 @@
 #pragma Private Methods
 
 
-- (void)_actionCancel{
+- (void)_actionCancel
+{
     UIViewController *parentViewController = self.parentViewController;
-    if ([parentViewController isKindOfClass:[UIImagePickerController class]]){
+    if ([parentViewController isKindOfClass:[UIImagePickerController class]]) {
         UIImagePickerController *picker = (UIImagePickerController *)parentViewController;
         if (picker.sourceType == UIImagePickerControllerSourceTypeCamera) {
             [self.navigationController dismissViewControllerAnimated:YES completion:nil];
@@ -56,13 +57,15 @@
 }
 
 
-- (void)_actionUse{
+- (void)_actionUse
+{
     _croppedImage = [self.imageCropView croppedImage];
     [self.delegate imageCropController:self didFinishWithCroppedImage:_croppedImage];
 }
 
 
-- (void)_setupNavigationBar{
+- (void)_setupNavigationBar
+{
 
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
                                                                                           target:self 
@@ -93,7 +96,8 @@
     return normalizedSize;
 }
 
-- (void)_setupCropView{
+- (void)_setupCropView
+{
     
     self.imageCropView = [[GKImageCropView alloc] initWithFrame:self.view.bounds];
     self.imageCropView.enforceRatioLimits = self.enforceRatioLimits;
@@ -132,7 +136,8 @@
     return  [UIFont systemFontOfSize:18.f];
 }
 
-- (void)_setupCancelButton{
+- (void)_setupCancelButton
+{
     CGSize buttonSize = [self sizeForString:NSLocalizedString(@"Cancel", @"Cancel")
                                    withFont:[self buttonFont]];
     
@@ -144,7 +149,8 @@
     [self.cancelButton  addTarget:self action:@selector(_actionCancel) forControlEvents:UIControlEventTouchUpInside];
 }
 
-- (void)_setupUseButton{
+- (void)_setupUseButton
+{
     CGSize buttonSize = [self sizeForString:NSLocalizedString(@"Use",@"Use")
                                    withFont:[self buttonFont]];
     
@@ -158,7 +164,8 @@
 }
 
 
-- (void)_setupToolbar{
+- (void)_setupToolbar
+{
     if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) {
         self.toolbarView = [[UIView alloc] initWithFrame:CGRectMake(0,
                                                                    self.view.frame.size.height - TOOLBAR_HEIGHT,
@@ -182,7 +189,8 @@
 #pragma mark -
 #pragma Super Class Methods
 
-- (id)init{
+- (id)init
+{
     self = [super init];
     if (self) {
         // Custom initialization
@@ -190,7 +198,8 @@
     return self;
 }
 
-- (void)viewDidLoad{
+- (void)viewDidLoad
+{
     [super viewDidLoad];
 	// Do any additional setup after loading the view.
     
@@ -208,7 +217,8 @@
 	}
 }
 
-- (void)viewDidUnload{
+- (void)viewDidUnload
+{
     [super viewDidUnload];
     // Release any retained subviews of the main view.
 }
@@ -219,7 +229,8 @@
     [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationNone];
 }
 
-- (void)viewWillLayoutSubviews{
+- (void)viewWillLayoutSubviews
+{
     [super viewWillLayoutSubviews];
     
     self.imageCropView.frame = self.view.bounds;

@@ -73,29 +73,29 @@ static CGRect GKScaleRect(CGRect rect, CGFloat scale)
     self.imageView.image = imageToCrop;
 }
 
-- (UIImage *)imageToCrop{
+- (UIImage *)imageToCrop {
     return self.imageView.image;
 }
 
-- (void)setCropSize:(CGSize)cropSize{
+- (void)setCropSize:(CGSize)cropSize {
     
-    if (self.cropOverlayView == nil){
-        if(self.resizableCropArea){
+    if (self.cropOverlayView == nil) {
+        if(self.resizableCropArea) {
             GKResizeableCropOverlayView *resizeableView = [[GKResizeableCropOverlayView alloc] initWithFrame:self.bounds andInitialContentSize:CGSizeMake(cropSize.width, cropSize.height)];
             resizeableView.enforceRatioLimits = self.enforceRatioLimits;
             resizeableView.maxWidthRatio = self.maxWidthRatio;
             resizeableView.minWidthRatio = self.minWidthRatio;
             self.cropOverlayView = resizeableView;
         }
-        else
+        else {
             self.cropOverlayView = [[GKImageCropOverlayView alloc] initWithFrame:self.bounds];
-        
+        }
         [self addSubview:self.cropOverlayView];
     }
     self.cropOverlayView.cropSize = cropSize;
 }
 
-- (CGSize)cropSize{
+- (CGSize)cropSize {
     return self.cropOverlayView.cropSize;
 }
 
