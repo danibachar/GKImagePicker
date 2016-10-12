@@ -105,7 +105,8 @@
     self.imageCropView.minWidthRatio = self.minWidthRatio;
     [self.imageCropView setImageToCrop:sourceImage];
     [self.imageCropView setResizableCropArea:self.resizeableCropArea];
-    [self.imageCropView setCropSize:[self normalizedCropSizeForRect:self.view.bounds]];
+    [self.imageCropView setNormalizedCropSize:[self normalizedCropSizeForRect:self.view.bounds]];
+    [self.imageCropView setOriginalCropSize:self.cropSize];
     
     self.imageCropView.clipsToBounds = YES;
     [self.view addSubview:self.imageCropView];

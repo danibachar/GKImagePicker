@@ -14,7 +14,8 @@
 @interface GKImageCropView : UIView
 
 @property (nonatomic, strong) UIImage *imageToCrop;
-@property (nonatomic, assign) CGSize cropSize;
+@property (nonatomic, assign) CGSize normalizedCropSize;
+@property (nonatomic, assign) CGSize originalCropSize;
 @property (nonatomic, assign) BOOL resizableCropArea;
 
 @property (nonatomic, assign) BOOL enforceRatioLimits;
