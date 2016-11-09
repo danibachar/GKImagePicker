@@ -219,14 +219,18 @@ typedef NS_ENUM(NSUInteger, GKPickerAppSettingsOptions)
     
 #elif TARGET_OS_IPHONE
     
-    if ([self hasPermissionToCamera]) {
+    __weak typeof (self) weakSelf = self;
+    [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
         
-        [self initImagePickerIfNeededByType:UIImagePickerControllerSourceTypeCamera];
-        [self presentImagePickerController];
-    } else {
-        [self triggerNoPermissionFlow:GKPickerOptionCamera];
-    }
-    
+        if ([weakSelf hasPermissionToCamera]) {
+            
+            [weakSelf initImagePickerIfNeededByType:UIImagePickerControllerSourceTypeCamera];
+            [weakSelf presentImagePickerController];
+        } else {
+            [weakSelf triggerNoPermissionFlow:GKPickerOptionCamera];
+        }
+    }];
+
 #endif
     
 }
@@ -238,14 +242,18 @@ typedef NS_ENUM(NSUInteger, GKPickerAppSettingsOptions)
 }
 
 - (void)showGalleryImagePicker
-{    
-    if ([self hasPermissionToPhotoLibrary]) {
+{
+    __weak typeof (self) weakSelf = self;
+    [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
+        if ([weakSelf hasPermissionToPhotoLibrary]) {
+            
+            [weakSelf initImagePickerIfNeededByType:UIImagePickerControllerSourceTypePhotoLibrary];
+            [weakSelf presentImagePickerController];
+        } else {
+            [weakSelf triggerNoPermissionFlow:GKPickerOptionPhotoLibrary];
+        }
         
-        [self initImagePickerIfNeededByType:UIImagePickerControllerSourceTypePhotoLibrary];
-        [self presentImagePickerController];
-    } else {
-        [self triggerNoPermissionFlow:GKPickerOptionPhotoLibrary];
-    }
+    }];
 }
 
 #pragma mark - Private Error Handling
