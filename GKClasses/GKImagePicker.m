@@ -166,6 +166,11 @@ typedef NS_ENUM(NSUInteger, GKPickerAppSettingsOptions)
         [alertController addAction:fromCameraAction];
         [alertController addAction:fromLibraryAction];
         
+        if ([alertController respondsToSelector:@selector(popoverPresentationController)]) {
+            alertController.popoverPresentationController.sourceView = self.popoverView;
+            alertController.popoverPresentationController.sourceRect = self.popoverView.frame;
+        }
+        
         [viewController presentViewController:alertController animated:YES completion:nil];
     }
     else {
