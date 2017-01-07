@@ -85,11 +85,11 @@ typedef NS_ENUM(NSUInteger, GKPickerAppSettingsOptions)
         self.imagePickerController.allowsEditing = YES;
     }
     
+    self.imagePickerController.sourceType = type;
+
     if (self.useFrontCameraAsDefault && type == UIImagePickerControllerSourceTypeCamera) {
         self.imagePickerController.cameraDevice = UIImagePickerControllerCameraDeviceFront;
     }
-    
-    self.imagePickerController.sourceType = type;
 }
 
 #pragma mark UIImagePickerDelegate Methods
