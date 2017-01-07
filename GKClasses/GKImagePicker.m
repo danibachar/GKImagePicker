@@ -234,7 +234,7 @@ typedef NS_ENUM(NSUInteger, GKPickerAppSettingsOptions)
             } else {
                 [weakSelf triggerNoPermissionFlow:GKPickerOptionCamera];
             }
-        }
+        });
     }];
 
 #endif
