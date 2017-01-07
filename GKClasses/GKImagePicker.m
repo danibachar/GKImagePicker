@@ -226,13 +226,14 @@ typedef NS_ENUM(NSUInteger, GKPickerAppSettingsOptions)
     
     __weak typeof (self) weakSelf = self;
     [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
-        
-        if ([weakSelf hasPermissionToCamera]) {
-            
-            [weakSelf initImagePickerIfNeededByType:UIImagePickerControllerSourceTypeCamera];
-            [weakSelf presentImagePickerController];
-        } else {
-            [weakSelf triggerNoPermissionFlow:GKPickerOptionCamera];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if ([weakSelf hasPermissionToCamera]) {
+
+                [weakSelf initImagePickerIfNeededByType:UIImagePickerControllerSourceTypeCamera];
+                [weakSelf presentImagePickerController];
+            } else {
+                [weakSelf triggerNoPermissionFlow:GKPickerOptionCamera];
+            }
         }
     }];
 
@@ -250,14 +251,15 @@ typedef NS_ENUM(NSUInteger, GKPickerAppSettingsOptions)
 {
     __weak typeof (self) weakSelf = self;
     [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
-        if ([weakSelf hasPermissionToPhotoLibrary]) {
-            
-            [weakSelf initImagePickerIfNeededByType:UIImagePickerControllerSourceTypePhotoLibrary];
-            [weakSelf presentImagePickerController];
-        } else {
-            [weakSelf triggerNoPermissionFlow:GKPickerOptionPhotoLibrary];
-        }
-        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if ([weakSelf hasPermissionToPhotoLibrary]) {
+
+                [weakSelf initImagePickerIfNeededByType:UIImagePickerControllerSourceTypePhotoLibrary];
+                [weakSelf presentImagePickerController];
+            } else {
+                [weakSelf triggerNoPermissionFlow:GKPickerOptionPhotoLibrary];
+            }
+        });
     }];
 }
 
@@ -296,9 +298,7 @@ typedef NS_ENUM(NSUInteger, GKPickerAppSettingsOptions)
     
     notAuthorizedAlert.tag = kGKNoPermissionsAlertViewTag;
     
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [notAuthorizedAlert show];
-    });
+    [notAuthorizedAlert show];
 }
 
 
