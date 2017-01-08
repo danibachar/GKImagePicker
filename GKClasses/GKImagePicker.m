@@ -82,14 +82,14 @@ typedef NS_ENUM(NSUInteger, GKPickerAppSettingsOptions)
     if (!self.imagePickerController) {
         self.imagePickerController = [[UIImagePickerController alloc] init];
         self.imagePickerController.delegate = self;
-        self.imagePickerController.allowsEditing = YES;
-    }
-    
-    if (self.useFrontCameraAsDefault) {
-        self.imagePickerController.cameraDevice = UIImagePickerControllerCameraDeviceFront;
+        self.imagePickerController.allowsEditing = NO;
     }
     
     self.imagePickerController.sourceType = type;
+
+    if (self.useFrontCameraAsDefault && type == UIImagePickerControllerSourceTypeCamera) {
+        self.imagePickerController.cameraDevice = UIImagePickerControllerCameraDeviceFront;
+    }
 }
 
 #pragma mark UIImagePickerDelegate Methods
@@ -116,7 +116,8 @@ typedef NS_ENUM(NSUInteger, GKPickerAppSettingsOptions)
 #else
     cropController.contentSizeForViewInPopover = picker.contentSizeForViewInPopover;
 #endif
-    UIImage *img = [info objectForKey:UIImagePickerControllerEditedImage];
+    UIImage *img = [info objectForKey:UIImagePickerControllerOriginalImage];
+    assert(nil != img);
     cropController.sourceImage = img;
     cropController.resizeableCropArea = self.resizeableCropArea;
     cropController.cropSize = self.cropSize;
@@ -226,14 +227,15 @@ typedef NS_ENUM(NSUInteger, GKPickerAppSettingsOptions)
     
     __weak typeof (self) weakSelf = self;
     [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
-        
-        if ([weakSelf hasPermissionToCamera]) {
-            
-            [weakSelf initImagePickerIfNeededByType:UIImagePickerControllerSourceTypeCamera];
-            [weakSelf presentImagePickerController];
-        } else {
-            [weakSelf triggerNoPermissionFlow:GKPickerOptionCamera];
-        }
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if ([weakSelf hasPermissionToCamera]) {
+
+                [weakSelf initImagePickerIfNeededByType:UIImagePickerControllerSourceTypeCamera];
+                [weakSelf presentImagePickerController];
+            } else {
+                [weakSelf triggerNoPermissionFlow:GKPickerOptionCamera];
+            }
+        });
     }];
 
 #endif
@@ -250,14 +252,15 @@ typedef NS_ENUM(NSUInteger, GKPickerAppSettingsOptions)
 {
     __weak typeof (self) weakSelf = self;
     [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
-        if ([weakSelf hasPermissionToPhotoLibrary]) {
-            
-            [weakSelf initImagePickerIfNeededByType:UIImagePickerControllerSourceTypePhotoLibrary];
-            [weakSelf presentImagePickerController];
-        } else {
-            [weakSelf triggerNoPermissionFlow:GKPickerOptionPhotoLibrary];
-        }
-        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if ([weakSelf hasPermissionToPhotoLibrary]) {
+
+                [weakSelf initImagePickerIfNeededByType:UIImagePickerControllerSourceTypePhotoLibrary];
+                [weakSelf presentImagePickerController];
+            } else {
+                [weakSelf triggerNoPermissionFlow:GKPickerOptionPhotoLibrary];
+            }
+        });
     }];
 }
 
@@ -296,9 +299,7 @@ typedef NS_ENUM(NSUInteger, GKPickerAppSettingsOptions)
     
     notAuthorizedAlert.tag = kGKNoPermissionsAlertViewTag;
     
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [notAuthorizedAlert show];
-    });
+    [notAuthorizedAlert show];
 }
 
 
