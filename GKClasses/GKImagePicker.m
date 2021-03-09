@@ -82,7 +82,6 @@ typedef NS_ENUM(NSUInteger, GKPickerAppSettingsOptions)
     if (!self.imagePickerController) {
         self.imagePickerController = [[UIImagePickerController alloc] init];
         self.imagePickerController.delegate = self;
-        self.imagePickerController.allowsEditing = YES;
     }
     
     if (self.useFrontCameraAsDefault) {
@@ -116,7 +115,7 @@ typedef NS_ENUM(NSUInteger, GKPickerAppSettingsOptions)
 #else
     cropController.contentSizeForViewInPopover = picker.contentSizeForViewInPopover;
 #endif
-    UIImage *img = [info objectForKey:UIImagePickerControllerEditedImage];
+    UIImage *img = info[UIImagePickerControllerOriginalImage];
     cropController.sourceImage = img;
     cropController.resizeableCropArea = self.resizeableCropArea;
     cropController.cropSize = self.cropSize;

@@ -77,11 +77,11 @@ static CGRect GKScaleRect(CGRect rect, CGFloat scale)
     return self.imageView.image;
 }
 
-- (void)setCropSize:(CGSize)cropSize {
+- (void)setNormalizedCropSize:(CGSize)normalizedCropSize {
     
     if (self.cropOverlayView == nil) {
         if(self.resizableCropArea) {
-            GKResizeableCropOverlayView *resizeableView = [[GKResizeableCropOverlayView alloc] initWithFrame:self.bounds andInitialContentSize:CGSizeMake(cropSize.width, cropSize.height)];
+            GKResizeableCropOverlayView *resizeableView = [[GKResizeableCropOverlayView alloc] initWithFrame:self.bounds andInitialContentSize:CGSizeMake(normalizedCropSize.width, normalizedCropSize.height)];
             resizeableView.enforceRatioLimits = self.enforceRatioLimits;
             resizeableView.maxWidthRatio = self.maxWidthRatio;
             resizeableView.minWidthRatio = self.minWidthRatio;
@@ -92,10 +92,10 @@ static CGRect GKScaleRect(CGRect rect, CGFloat scale)
         }
         [self addSubview:self.cropOverlayView];
     }
-    self.cropOverlayView.cropSize = cropSize;
+    self.cropOverlayView.cropSize = normalizedCropSize;
 }
 
-- (CGSize)cropSize {
+- (CGSize)normalizedCropSize {
     return self.cropOverlayView.cropSize;
 }
 
@@ -133,8 +133,8 @@ static CGRect GKScaleRect(CGRect rect, CGFloat scale)
 
 -(CGRect)_calcVisibleRectForCropArea{
     //scaled width/height in regards of real width to crop width
-    CGFloat scaleWidth = self.imageToCrop.size.width / self.cropSize.width;
-    CGFloat scaleHeight = self.imageToCrop.size.height / self.cropSize.height;
+    CGFloat scaleWidth = self.imageToCrop.size.width / self.normalizedCropSize.width;
+    CGFloat scaleHeight = self.imageToCrop.size.height / self.normalizedCropSize.height;
     CGFloat scale = 0.0f;
     
     scale = MIN(scaleWidth, scaleHeight);
@@ -227,7 +227,7 @@ static CGRect GKScaleRect(CGRect rect, CGFloat scale)
 - (void)layoutSubviews{
     [super layoutSubviews];
     
-    CGSize size = self.cropSize;
+    CGSize size = self.normalizedCropSize;
     self.xOffset = floor((CGRectGetWidth(self.bounds) - size.width) * 0.5);
     self.yOffset = floor((CGRectGetHeight(self.bounds) - size.height) * 0.5); //fixed
 
@@ -249,11 +249,11 @@ static CGRect GKScaleRect(CGRect rect, CGFloat scale)
     self.scrollView.contentSize = CGSizeMake(size.width, size.height);
     self.imageView.frame = CGRectMake(0, floor((size.height - factoredHeight) * 0.5), factoredWidth, factoredHeight);
     
-    /* TODO 
-        implement a feature that allows restricting the zoom scale to the max available
-        (based on image's resolution), to prevent pixelation. We simply have to deteremine the
-        max zoom scale and place it here
-     */
+
+    CGFloat imageWidth = self.imageToCrop.size.width;
+    CGFloat imageHeight = self.imageToCrop.size.height;
+    CGFloat maximumScale = MIN(imageWidth/self.originalCropSize.width, imageHeight/self.originalCropSize.height);
+    self.scrollView.maximumZoomScale = maximumScale;
     self.scrollView.minimumZoomScale = CGRectGetWidth(self.scrollView.frame) / CGRectGetWidth(self.imageView.frame);
 
     [self.scrollView setContentOffset:CGPointMake((factoredWidth - size.width) * 0.5, (factoredHeight - size.height) * 0.5)];
